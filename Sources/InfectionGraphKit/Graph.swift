@@ -14,12 +14,21 @@ public struct Node {
     public func degree() -> Int {
         return edges.count
     }
+    public func toRKFormat() -> String {
+        "Node: \(id)"
+    }
 }
 public struct Edge {
     public var u: Node
     public var v: Node
     public func reverse() -> Edge {
         return Edge(u: v, v: u)
+    }
+    public func reverseRKFormat() -> String {
+        "Edge: \(v) \(u)"
+    }
+    public func toRKFormat() -> String {
+        "Edge: \(u) \(v)"
     }
 }
 

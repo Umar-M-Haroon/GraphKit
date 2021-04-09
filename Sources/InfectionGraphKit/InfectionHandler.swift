@@ -58,9 +58,6 @@ public struct InfectionHandler {
         timeStamp += 1
     }
     public func numberOfInfectedNodes() -> Int {
-//        for (_, value) in iterationsDict {
-//            print(value.nodes.filter({$0.SIRState == .Infected}).count)
-//        }
         guard let test = iterationsDict[iterationsDict.count - 1] else { return 0 }
         return test.nodes.filter({$0.SIRState == .Infected}).count
     

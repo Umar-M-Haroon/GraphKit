@@ -31,22 +31,18 @@ public struct InfectionHandler {
     var difficulty: Difficulty
     public mutating func startInfection() {
         for _ in 0 ..< difficulty.numberOfStartingInfected {
-            var randomIndex = Int.random(in: 0 ..< graph.nodes.count)
-            while graph.nodes[randomIndex].SIRState == .Infected {
-                randomIndex = Int.random(in: 0 ..< graph.nodes.count)
-            }
+            let randomIndex = Int.random(in: 0 ..< graph.nodes.count)
             graph.nodes[randomIndex].SIRState = SIRNodeStates.Infected
         }
-        addAntiVaxxers()
         iterationsDict[timeStamp] = graph
         timeStamp += 1
     }
     public mutating func addAntiVaxxers() {
         if difficulty.antiVaxxers > 0 {
             let new = graph
-            while new.nodes.filter({$0.metaData == .antiVax}).count < difficulty.antiVaxxers {
+            for _ in 0..<difficulty.antiVaxxers {
                 guard let n = new.nodes.randomElement(),
-                      n.SIRState != .Infected else { continue }
+                      n.SIRState != .Infected else { return }
                 addAntiVaxNode(node: n)
             }
         }

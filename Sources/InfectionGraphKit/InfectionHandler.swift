@@ -105,21 +105,9 @@ public struct InfectionHandler {
         guard let index = newGraph.nodes.firstIndex(where: {$0.id == node.id}) else { return }
         var n2 = newGraph.nodes[index]
         n2.metaData = .antiVax
-        newGraph.nodes[index] = node
+        newGraph.nodes[index] = n2
         graph = newGraph
         iterationsDict[timeStamp] = newGraph
     }
-    public mutating func markNodesAntiVax(numberOfAntiVaxxers: Int) {
-        var newGraph = graph
 
-        for node in newGraph.nodes where node.SIRState != .Infected {
-            guard let index = newGraph.nodes.firstIndex(where: {$0.id == node.id}) else { return }
-            var n2 = newGraph.nodes[index]
-            n2.metaData = .antiVax
-            newGraph.nodes[index] = n2
-        }
-        
-        graph = newGraph
-        iterationsDict[timeStamp] = newGraph
-    }
 }

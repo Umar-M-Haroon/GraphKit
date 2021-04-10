@@ -25,10 +25,10 @@ public struct Edge {
         return Edge(u: v, v: u)
     }
     public func reverseRKFormat() -> String {
-        "Edge: \(v.id) \(u.id)"
+        "Edge: Node: \(u.id) Node: \(v.id)"
     }
     public func toRKFormat() -> String {
-        "Edge: \(u.id) \(v.id)"
+        "Edge: Node: \(u.id) Node: \(v.id)"
     }
 }
 

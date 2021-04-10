@@ -23,9 +23,9 @@ public struct InfectionHandler {
     }
     
     var timeStamp = 0
-    var graph: Graph
+    public var graph: Graph
     var iterationsDict: [Int: Graph]
-    var vaccinesAdministered: Int
+    public var vaccinesAdministered: Int
     
     var defaultInfectionRate = 0.7
     var difficulty: Difficulty
@@ -44,9 +44,9 @@ public struct InfectionHandler {
     public mutating func addAntiVaxxers() {
         if difficulty.antiVaxxers > 0 {
             let new = graph
-            for _ in 0..<difficulty.antiVaxxers {
+            while new.nodes.filter({$0.metaData == .antiVax}).count < difficulty.antiVaxxers {
                 guard let n = new.nodes.randomElement(),
-                      n.SIRState != .Infected else { return }
+                      n.SIRState != .Infected else { continue }
                 addAntiVaxNode(node: n)
             }
         }
@@ -108,7 +108,7 @@ public struct InfectionHandler {
         
         guard let index = newGraph.nodes.firstIndex(where: {$0.id == node.id}) else { return }
         var n2 = newGraph.nodes[index]
-        n2.metaData = .quarantined
+        n2.metaData = .antiVax
         newGraph.nodes[index] = node
         graph = newGraph
         iterationsDict[timeStamp] = newGraph

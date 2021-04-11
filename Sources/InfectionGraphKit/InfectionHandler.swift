@@ -93,7 +93,7 @@ public struct InfectionHandler {
         var newGraph = graph
         guard let index = newGraph.nodes.firstIndex(where: {$0.id == node.id}) else { return }
         var n2 = newGraph.nodes[index]
-        n2.metaData = .vaccinated
+        n2.metaData = .quarantined
         newGraph.nodes[index] = node
         graph = newGraph
         iterationsDict[timeStamp] = newGraph

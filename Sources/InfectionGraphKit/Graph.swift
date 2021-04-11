@@ -21,8 +21,9 @@ public struct Node: Equatable {
 public struct Edge: Equatable {
     public var u: Node
     public var v: Node
+    public var isActive: Bool
     public func reverse() -> Edge {
-        return Edge(u: v, v: u)
+        return Edge(u: v, v: u, isActive: isActive)
     }
     public func reverseRKFormat() -> String {
         "Edge: Node: \(u.id) Node: \(v.id)"
@@ -73,7 +74,7 @@ public struct Graph {
         guard let v = self.nodes.first(where: { $0.id == randomNumber }) else {
             fatalError("invalid v")
         }
-        let edge = Edge(u: node, v: v)
+        let edge = Edge(u: node, v: v, isActive: true)
         addUndirectedEdge(edge: edge, node: node)
     }
     mutating func addUndirectedEdge(edge: Edge, node: Node) {

@@ -61,7 +61,7 @@ public struct InfectionHandler {
     func infectNodes() -> Graph {
         var newGraph = graph
         for node in graph.nodes where node.SIRState == .Infected {
-            for edge in node.edges where edge.v.metaData != .quarantined && edge.v.metaData != .vaccinated {
+            for edge in node.edges where edge.v.metaData != .quarantined && edge.v.metaData != .vaccinated && edge.isActive {
                 if Double.random(in: 0.0 ..< 1) <= difficulty.infectionRate {
                     guard let index = newGraph.nodes.firstIndex(where: { $0.id == edge.v.id }) else {
                         print("INVALID INDEX")
@@ -83,6 +83,11 @@ public struct InfectionHandler {
             guard let index = newGraph.nodes.firstIndex(where: {$0.id == node.id}) else { return }
             var n2 = newGraph.nodes[index]
             n2.metaData = .vaccinated
+            n2.edges = n2.edges.map({ edge in
+                var e2 = edge
+                e2.isActive = false
+                return e2
+            })
             newGraph.nodes[index] = node
             graph = newGraph
             vaccinesAdministered += 1
@@ -94,6 +99,11 @@ public struct InfectionHandler {
         guard let index = newGraph.nodes.firstIndex(where: {$0.id == node.id}) else { return }
         var n2 = newGraph.nodes[index]
         n2.metaData = .quarantined
+        n2.edges = n2.edges.map({ edge in
+            var e2 = edge
+            e2.isActive = false
+            return e2
+        })
         newGraph.nodes[index] = node
         graph = newGraph
         iterationsDict[timeStamp] = newGraph

@@ -6,7 +6,7 @@
 //
 
 import Foundation
-public struct Node {
+public struct Node: Equatable {
     public var id: Int
     public var edges: [Edge]
     public var metaData: NodeMetadata
@@ -18,7 +18,7 @@ public struct Node {
         "Node: \(id)"
     }
 }
-public struct Edge {
+public struct Edge: Equatable {
     public var u: Node
     public var v: Node
     public func reverse() -> Edge {

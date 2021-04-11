@@ -61,7 +61,7 @@ public struct InfectionHandler {
     func infectNodes() -> Graph {
         var newGraph = graph
         for node in graph.nodes where node.SIRState == .Infected {
-            for edge in node.edges {
+            for edge in node.edges where edge.v.metaData != .quarantined && edge.v.metaData != .vaccinated {
                 if Double.random(in: 0.0 ..< 1) <= difficulty.infectionRate {
                     guard let index = newGraph.nodes.firstIndex(where: { $0.id == edge.v.id }) else {
                         print("INVALID INDEX")

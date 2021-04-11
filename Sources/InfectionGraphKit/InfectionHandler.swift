@@ -88,7 +88,7 @@ public struct InfectionHandler {
                 e2.isActive = false
                 return e2
             })
-            newGraph.nodes[index] = node
+            newGraph.nodes[index] = n2
             graph = newGraph
             vaccinesAdministered += 1
             iterationsDict[timeStamp] = newGraph
@@ -104,7 +104,7 @@ public struct InfectionHandler {
             e2.isActive = false
             return e2
         })
-        newGraph.nodes[index] = node
+        newGraph.nodes[index] = n2
         graph = newGraph
         iterationsDict[timeStamp] = newGraph
     }

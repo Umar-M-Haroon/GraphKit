@@ -88,6 +88,22 @@ public struct InfectionHandler {
                 e2.isActive = false
                 return e2
             })
+            let v_nodes = n2.edges.map { edge in
+                edge.v
+            }
+            for n in v_nodes {
+                guard let v_index = newGraph.nodes.firstIndex(where: {$0.id == n.id}) else { fatalError("Unfound Node")}
+                var v = newGraph.nodes[v_index]
+                v.edges = v.edges.map { e in
+                    if e.v == n2 {
+                        var e2 = e
+                        e2.isActive = false
+                        return e2
+                    }
+                    return e
+                }
+                newGraph.nodes[v_index] = v
+            }
             newGraph.nodes[index] = n2
             graph = newGraph
             vaccinesAdministered += 1
@@ -104,6 +120,22 @@ public struct InfectionHandler {
             e2.isActive = false
             return e2
         })
+        let v_nodes = n2.edges.map { edge in
+            edge.v
+        }
+        for n in v_nodes {
+            guard let v_index = newGraph.nodes.firstIndex(where: {$0.id == n.id}) else { fatalError("Unfound Node")}
+            var v = newGraph.nodes[v_index]
+            v.edges = v.edges.map { e in
+                if e.v == n2 {
+                    var e2 = e
+                    e2.isActive = false
+                    return e2
+                }
+                return e
+            }
+            newGraph.nodes[v_index] = v
+        }
         newGraph.nodes[index] = n2
         graph = newGraph
         iterationsDict[timeStamp] = newGraph

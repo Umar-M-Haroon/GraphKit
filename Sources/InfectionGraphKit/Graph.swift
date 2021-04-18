@@ -6,9 +6,9 @@
 //
 
 import Foundation
-public struct Node: Equatable {
+public struct Node: Equatable, Hashable {
     public var id: Int
-    public var edges: [Edge]
+    public var edges: Set<Edge>
     public var metaData: NodeMetadata
     public var SIRState: SIRNodeStates
     public func degree() -> Int {
@@ -18,12 +18,25 @@ public struct Node: Equatable {
         "Node: \(id)"
     }
 }
-public struct Edge: Equatable {
+extension Node: CustomDebugStringConvertible {
+    public var debugDescription: String {
+        return "Node: \(id), edges: \(edges.forEach({ print($0.debugDescription) })), metaData: \(metaData): sirState: \(SIRState)"
+    }
+}
+public struct Edge: Equatable, Hashable {
     public var u: Node
     public var v: Node
-    public var isActive: Bool
+    public var isActive: Bool {
+        if u.metaData == .quarantined || u.metaData == .vaccinated {
+            return false
+        }
+        if v.metaData == .quarantined || v.metaData == .vaccinated {
+            return false
+        }
+        return true
+    }
     public func reverse() -> Edge {
-        return Edge(u: v, v: u, isActive: isActive)
+        return Edge(u: v, v: u)
     }
     public func reverseRKFormat() -> String {
         "Edge: Node: \(u.id) Node: \(v.id)"
@@ -32,7 +45,11 @@ public struct Edge: Equatable {
         "Edge: Node: \(u.id) Node: \(v.id)"
     }
 }
-
+extension Edge: CustomDebugStringConvertible {
+    public var debugDescription: String {
+        return "u: \(u.id) v: \(v.id) isActive: \(isActive)"
+    }
+}
 public enum SIRNodeStates {
     case susceptible
     case Infected
@@ -50,6 +67,26 @@ public struct Graph {
     }
     
     public var nodes: [Node]
+    public var edges: Set<Edge> {
+        var e: Set<Edge> = []
+        nodes.forEach({
+            $0.edges.forEach({ edge in
+                e.insert(edge)
+            })
+        })
+        return e
+    }
+    public var activeEdges: Set<Edge> {
+        var e: Set<Edge> = []
+        nodes.forEach({
+            $0.edges.forEach({ edge in
+                if edge.isActive {
+                    e.insert(edge)
+                }
+            })
+        })
+        return e
+    }
     public init(numberOfNodes: Int) {
         var totalNodes: [Node] = []
         var dict: [Int: Node] = [:]
@@ -74,15 +111,16 @@ public struct Graph {
         guard let v = self.nodes.first(where: { $0.id == randomNumber }) else {
             fatalError("invalid v")
         }
-        let edge = Edge(u: node, v: v, isActive: true)
+        let edge = Edge(u: node, v: v)
         addUndirectedEdge(edge: edge, node: node)
+        
     }
     mutating func addUndirectedEdge(edge: Edge, node: Node) {
         var mutableNodes = self.nodes
         guard let uIndex = self.nodes.firstIndex(where: {$0.id == node.id}),
               let vIndex = self.nodes.firstIndex(where: {$0.id == edge.v.id}) else { return }
-        mutableNodes[uIndex].edges.append(edge)
-        mutableNodes[vIndex].edges.append(edge.reverse())
+        mutableNodes[uIndex].edges.insert(edge)
+        mutableNodes[vIndex].edges.insert(edge.reverse())
         self.nodes = mutableNodes
     }
     public func getIndex(node: Node) -> Int {

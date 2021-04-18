@@ -59,17 +59,24 @@ public struct InfectionHandler {
     
     }
     func infectNodes() -> Graph {
+        let unavailableNodes = graph.nodes.filter({$0.metaData == .vaccinated || $0.metaData == .quarantined})
+        unavailableNodes.forEach({print("Unavailable node: \($0.id)")})
         var newGraph = graph
         for node in graph.nodes where node.SIRState == .Infected {
+            print("infected node \(node.id)")
             for edge in node.edges where edge.v.metaData != .quarantined && edge.v.metaData != .vaccinated && edge.isActive {
                 if Double.random(in: 0.0 ..< 1) <= difficulty.infectionRate {
-                    guard let index = newGraph.nodes.firstIndex(where: { $0.id == edge.v.id }) else {
-                        print("INVALID INDEX")
-                        return graph
-                    }
-                    if newGraph.nodes[index].SIRState != .Infected {
-                        print("node: \(node.id) infecting \(newGraph.nodes[index].id)")
-                        newGraph.nodes[index].SIRState = .Infected
+                    if !unavailableNodes.contains(edge.v) || !unavailableNodes.contains(edge.u) {
+                        guard let index = newGraph.nodes.firstIndex(where: { $0.id == edge.v.id }) else {
+                            print("INVALID INDEX")
+                            return graph
+                        }
+                        if !unavailableNodes.contains(newGraph.nodes[index]) {                        
+                            if newGraph.nodes[index].SIRState != .Infected {
+                                print("node: \(node.id) infecting \(newGraph.nodes[index].id)")
+                                newGraph.nodes[index].SIRState = .Infected
+                            }
+                        }
                     }
                 }
             }
@@ -77,34 +84,23 @@ public struct InfectionHandler {
         return newGraph
     }
     public mutating func vaccinateNode(node: Node) {
+//        print(graph.activeEdges.count)
         if vaccinesAdministered < self.difficulty.numberOfVaccines {
             var newGraph = graph
             //sets node to vaccinated
             guard let index = newGraph.nodes.firstIndex(where: {$0.id == node.id}) else { return }
             var n2 = newGraph.nodes[index]
             n2.metaData = .vaccinated
-            n2.edges = n2.edges.map({ edge in
-                var e2 = edge
-                e2.isActive = false
-                return e2
-            })
-            let v_nodes = n2.edges.map { edge in
-                edge.v
-            }
-            for n in v_nodes {
-                guard let v_index = newGraph.nodes.firstIndex(where: {$0.id == n.id}) else { fatalError("Unfound Node")}
-                var v = newGraph.nodes[v_index]
-                v.edges = v.edges.map { e in
-                    if e.v == n2 {
-                        var e2 = e
-                        e2.isActive = false
-                        return e2
-                    }
-                    return e
-                }
-                newGraph.nodes[v_index] = v
-            }
+//            let v_nodes = n2.edges.map { edge in
+//                edge.v
+//            }
+//            for n in v_nodes {
+//                guard let v_index = newGraph.nodes.firstIndex(where: {$0.id == n.id}) else { fatalError("Unfound Node")}
+//                let v = newGraph.nodes[v_index]
+//                newGraph.nodes[v_index] = v
+//            }
             newGraph.nodes[index] = n2
+//            print(newGraph.activeEdges.count)
             graph = newGraph
             vaccinesAdministered += 1
             iterationsDict[timeStamp] = newGraph
@@ -115,27 +111,6 @@ public struct InfectionHandler {
         guard let index = newGraph.nodes.firstIndex(where: {$0.id == node.id}) else { return }
         var n2 = newGraph.nodes[index]
         n2.metaData = .quarantined
-        n2.edges = n2.edges.map({ edge in
-            var e2 = edge
-            e2.isActive = false
-            return e2
-        })
-        let v_nodes = n2.edges.map { edge in
-            edge.v
-        }
-        for n in v_nodes {
-            guard let v_index = newGraph.nodes.firstIndex(where: {$0.id == n.id}) else { fatalError("Unfound Node")}
-            var v = newGraph.nodes[v_index]
-            v.edges = v.edges.map { e in
-                if e.v == n2 {
-                    var e2 = e
-                    e2.isActive = false
-                    return e2
-                }
-                return e
-            }
-            newGraph.nodes[v_index] = v
-        }
         newGraph.nodes[index] = n2
         graph = newGraph
         iterationsDict[timeStamp] = newGraph
@@ -151,5 +126,14 @@ public struct InfectionHandler {
         graph = newGraph
         iterationsDict[timeStamp] = newGraph
     }
-
+    public func infectableEdges() -> Int {
+        var t = 0
+        for node in graph.nodes where node.SIRState == .Infected{
+            for edge in node.edges where edge.v.metaData != .quarantined || edge.v.metaData == .vaccinated {
+                print("\(edge.u.id) -> \(edge.v.id)")
+                t += 1
+            }
+        }
+        return t
+    }
 }

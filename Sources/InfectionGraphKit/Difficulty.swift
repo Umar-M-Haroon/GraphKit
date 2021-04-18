@@ -6,7 +6,7 @@
 //
 
 import Foundation
-public struct Difficulty {
+public struct Difficulty: Equatable {
 //    public var numberOfNodes: Int
     public var numberOfStartingInfected: Int
     public var infectionRate: Double
@@ -41,7 +41,7 @@ public struct Difficulty {
         }
     }
 }
-public enum DifficultyLevel {
+public enum DifficultyLevel: Equatable {
     case easy
     case medium
     case hard

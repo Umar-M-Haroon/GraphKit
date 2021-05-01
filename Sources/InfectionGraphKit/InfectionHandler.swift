@@ -154,7 +154,7 @@ public struct InfectionHandler {
         }
         return line
     }
-    func checkIfDone() -> Bool{
+    public func checkIfDone() -> Bool{
         if graph.nodes.filter({$0.SIRState == .Infected}).count == 0 { return false }
         let unavailableNodes = graph.nodes.filter({$0.metaData == .vaccinated || $0.metaData == .quarantined})
         var newGraph = graph

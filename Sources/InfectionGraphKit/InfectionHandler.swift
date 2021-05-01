@@ -136,4 +136,47 @@ public struct InfectionHandler {
         }
         return t
     }
+    public func infectedLine() -> [Int] {
+        var line: [Int] = []
+        for k in iterationsDict.keys {
+            let g = iterationsDict[k]
+            guard let c = g?.nodes.filter({$0.SIRState == .Infected}).count else { return [] }
+            line.append(c)
+        }
+        return line
+    }
+    public func savedLine() -> [Int] {
+        var line: [Int] = []
+        for k in iterationsDict.keys {
+            let g = iterationsDict[k]
+            guard let c = g?.nodes.filter({$0.SIRState == .Infected}).count else { return [] }
+            line.append(c)
+        }
+        return line
+    }
+    func checkIfDone() -> Bool{
+        if graph.nodes.filter({$0.SIRState == .Infected}).count == 0 { return false }
+        let unavailableNodes = graph.nodes.filter({$0.metaData == .vaccinated || $0.metaData == .quarantined})
+        var newGraph = graph
+        if graph.nodes.filter({$0.SIRState == .Infected}).flatMap({$0.edges}).isEmpty { return true }
+//        if infectableEdges.isEmpty {
+//            return true
+//        }
+        for node in graph.nodes where node.SIRState == .Infected {
+            for edge in node.edges where edge.v.metaData != .quarantined && edge.v.metaData != .vaccinated && edge.isActive {
+                if !unavailableNodes.contains(edge.v) || !unavailableNodes.contains(edge.u) {
+                    guard let index = newGraph.nodes.firstIndex(where: { $0.id == edge.v.id }) else {
+                        print("INVALID INDEX")
+                        return true
+                    }
+                    if !unavailableNodes.contains(newGraph.nodes[index]) {
+                        if newGraph.nodes[index].SIRState != .Infected {
+                            newGraph.nodes[index].SIRState = .Infected
+                        }
+                    }
+                }
+            }
+        }
+        return newGraph.nodes.filter({$0.SIRState == .Infected}).count == graph.nodes.filter({$0.SIRState == .Infected}).count
+    }
 }

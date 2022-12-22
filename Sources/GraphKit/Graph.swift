@@ -1,6 +1,6 @@
 //
 //  Graph.swift
-//  InfectionGraphKit
+//  Infection
 //
 //  Created by Umar Haroon on 3/31/21.
 //
@@ -9,57 +9,26 @@ import Foundation
 public struct Node: Equatable, Hashable {
     public var id: Int
     public var edges: Set<Edge>
-    public var metaData: NodeMetadata
-    public var SIRState: SIRNodeStates
     public func degree() -> Int {
         return edges.count
-    }
-    public func toRKFormat() -> String {
-        "Node: \(id)"
     }
 }
 extension Node: CustomDebugStringConvertible {
     public var debugDescription: String {
-        return "Node: \(id), edges: \(edges.forEach({ print($0.debugDescription) })), metaData: \(metaData): sirState: \(SIRState)"
+        return "Node: \(id), edges: \(edges.forEach({ print($0.debugDescription) }))"
     }
 }
 public struct Edge: Equatable, Hashable {
     public var u: Node
     public var v: Node
-    public var isActive: Bool {
-        if u.metaData == .quarantined || u.metaData == .vaccinated {
-            return false
-        }
-        if v.metaData == .quarantined || v.metaData == .vaccinated {
-            return false
-        }
-        return true
-    }
     public func reverse() -> Edge {
         return Edge(u: v, v: u)
-    }
-    public func reverseRKFormat() -> String {
-        "Edge: Node: \(u.id) Node: \(v.id)"
-    }
-    public func toRKFormat() -> String {
-        "Edge: Node: \(u.id) Node: \(v.id)"
     }
 }
 extension Edge: CustomDebugStringConvertible {
     public var debugDescription: String {
-        return "u: \(u.id) v: \(v.id) isActive: \(isActive)"
+        return "u: \(u.id) v: \(v.id)"
     }
-}
-public enum SIRNodeStates {
-    case susceptible
-    case Infected
-    case recovered
-}
-public enum NodeMetadata {
-    case quarantined
-    case antiVax
-    case vaccinated
-    case none
 }
 public struct Graph {
     internal init(nodes: [Node]) {
@@ -76,22 +45,11 @@ public struct Graph {
         })
         return e
     }
-    public var activeEdges: Set<Edge> {
-        var e: Set<Edge> = []
-        nodes.forEach({
-            $0.edges.forEach({ edge in
-                if edge.isActive {
-                    e.insert(edge)
-                }
-            })
-        })
-        return e
-    }
     public init(numberOfNodes: Int) {
         var totalNodes: [Node] = []
         var dict: [Int: Node] = [:]
         for i in 0 ..< numberOfNodes {
-            let n = Node(id: i, edges: [], metaData: .none, SIRState: .susceptible)
+            let n = Node(id: i, edges: [])
             totalNodes.append(n)
             dict[i] = n
         }

@@ -4,11 +4,11 @@
 //
 //  Created by Umar Haroon on 3/31/21.
 //
-
+import Collections
 import Foundation
 public struct Node: Equatable, Hashable {
     public var id: Int
-    public var edges: Set<Edge>
+    public var edges: OrderedSet<Edge>
     public func degree() -> Int {
         return edges.count
     }
@@ -19,15 +19,17 @@ extension Node: CustomDebugStringConvertible {
     }
 }
 public struct Edge: Equatable, Hashable {
-    public var u: Node
-    public var v: Node
+    /// first node id
+    public var u: Int
+    /// second node id
+    public var v: Int
     public func reverse() -> Edge {
         return Edge(u: v, v: u)
     }
 }
 extension Edge: CustomDebugStringConvertible {
     public var debugDescription: String {
-        return "u: \(u.id) v: \(v.id)"
+        return "u: \(u) v: \(v)"
     }
 }
 public struct Graph {
@@ -35,12 +37,12 @@ public struct Graph {
         self.nodes = nodes
     }
     
-    public var nodes: [Node]
-    public var edges: Set<Edge> {
-        var e: Set<Edge> = []
-        nodes.forEach({
-            $0.edges.forEach({ edge in
-                e.insert(edge)
+    private(set) var nodes: [Node]
+    public var edges: OrderedSet<Edge> {
+        var e: OrderedSet<Edge> = []
+        nodes.forEach({ node in
+            node.edges.forEach({ edge in
+                e.append(edge)
             })
         })
         return e
@@ -54,34 +56,74 @@ public struct Graph {
             dict[i] = n
         }
         self.nodes = totalNodes
-        for node in totalNodes {
-            createEdge(numberOfNodes: numberOfNodes, node: node)
-            if Double.random(in: 0..<1) > 0.2{
-                createEdge(numberOfNodes: numberOfNodes, node: node)
-            }
-        }
     }
-    private mutating func createEdge(numberOfNodes: Int, node: Node) {
-        var randomNumber = Int.random(in: 0 ..< numberOfNodes)
-        while randomNumber == node.id {
-            randomNumber = Int.random(in: 0 ..< numberOfNodes)
-        }
-        guard let v = self.nodes.first(where: { $0.id == randomNumber }) else {
-            fatalError("invalid v")
-        }
-        let edge = Edge(u: node, v: v)
-        addUndirectedEdge(edge: edge, node: node)
-        
-    }
-    mutating func addUndirectedEdge(edge: Edge, node: Node) {
+    mutating func addDirectedEdge(u: Int, v: Int) {
         var mutableNodes = self.nodes
-        guard let uIndex = self.nodes.firstIndex(where: {$0.id == node.id}),
-              let vIndex = self.nodes.firstIndex(where: {$0.id == edge.v.id}) else { return }
-        mutableNodes[uIndex].edges.insert(edge)
-        mutableNodes[vIndex].edges.insert(edge.reverse())
+        guard let uIndex = self.nodes.firstIndex(where: {$0.id == u}) else { return }
+        let edge = Edge(u: u, v: v)
+        mutableNodes[uIndex].edges.append(edge)
+        self.nodes = mutableNodes
+    }
+    mutating func removeDirectedEdge(u: Int, v: Int) {
+        var mutableNodes = self.nodes
+        guard let uIndex = self.nodes.firstIndex(where: {$0.id == u}) else { return }
+        mutableNodes[uIndex].edges.removeAll(where: {$0.v == v})
+        self.nodes = mutableNodes
+    }
+    mutating func removeUndirectedEdge(u: Int, v: Int) {
+        var mutableNodes = self.nodes
+        guard let uIndex = self.nodes.firstIndex(where: {$0.id == u}),
+        let vIndex = self.nodes.firstIndex(where: {$0.id == v}) else { return }
+        mutableNodes[uIndex].edges.removeAll(where: {$0.v == v})
+        mutableNodes[vIndex].edges.removeAll(where: {$0.v == u})
+        self.nodes = mutableNodes
+    }
+    mutating func addUndirectedEdge(u: Int, v: Int) {
+        var mutableNodes = self.nodes
+        guard let uIndex = self.nodes.firstIndex(where: {$0.id == u}),
+              let vIndex = self.nodes.firstIndex(where: {$0.id == v}) else { return }
+        let edge = Edge(u: u, v: v)
+        mutableNodes[uIndex].edges.append(edge)
+        mutableNodes[vIndex].edges.append(edge.reverse())
         self.nodes = mutableNodes
     }
     public func getIndex(node: Node) -> Int {
         return nodes.firstIndex(where: {$0.id == node.id})!
     }
+    mutating func addNode() {
+        var mutableNodes = self.nodes
+        let node = Node(id: self.nodes.count, edges: [])
+        mutableNodes.append(node)
+        self.nodes = mutableNodes
+    }
+    mutating func removeNode(id: Int) {
+        var mutableNodes = self.nodes
+        mutableNodes.removeAll(where: {$0.id == id})
+        self.nodes = mutableNodes
+    }
+    /// bfs search
+    /// - Returns:
+    func bfs(start: Int) -> OrderedSet<Int> {
+        var arrQueue: [Int] = []
+        var visited: OrderedSet<Int> = []
+        arrQueue.append(start)
+        visited.append(start)
+        while !arrQueue.isEmpty {
+            let y = arrQueue.removeFirst()
+            let node = nodes[y]
+            visited.append(y)
+            for edge in node.edges {
+                if !visited.contains(edge.v) {
+                    arrQueue.insert(edge.v, at: arrQueue.count)
+                }
+            }
+        }
+        return visited
+    }
+    
+//    func dfs(start: Int, visited: [Int] = []) -> OrderedSet<Int> {
+//        var vis = visited
+//        vis.append(start)
+//        return self.dfs(start: <#T##Int#>, visited: vis)
+//    }
 }

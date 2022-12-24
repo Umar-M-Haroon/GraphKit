@@ -6,7 +6,12 @@
 //
 import Collections
 import Foundation
-public struct Node: Equatable, Hashable {
+public protocol GraphNode: Equatable, Hashable {
+    var id: Int { get set }
+    var edges: OrderedSet<Edge> { get set }
+    func degree() -> Int
+}
+public struct Node: GraphNode {
     public var id: Int
     public var edges: OrderedSet<Edge>
     public func degree() -> Int {
@@ -33,11 +38,11 @@ extension Edge: CustomDebugStringConvertible {
     }
 }
 public struct Graph {
-    internal init(nodes: [Node]) {
+    internal init(nodes: [any GraphNode]) {
         self.nodes = nodes
     }
     
-    private(set) var nodes: [Node]
+    private(set) var nodes: [any GraphNode]
     public var edges: OrderedSet<Edge> {
         var e: OrderedSet<Edge> = []
         nodes.forEach({ node in
@@ -87,9 +92,7 @@ public struct Graph {
         mutableNodes[vIndex].edges.append(edge.reverse())
         self.nodes = mutableNodes
     }
-    public func getIndex(node: Node) -> Int {
-        return nodes.firstIndex(where: {$0.id == node.id})!
-    }
+    
     mutating func addNode() {
         var mutableNodes = self.nodes
         let node = Node(id: self.nodes.count, edges: [])

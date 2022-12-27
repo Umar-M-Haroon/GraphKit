@@ -1,4 +1,5 @@
 import XCTest
+import OrderedCollections
 @testable import GraphKit
 
 final class GraphKitTests: XCTestCase {
@@ -74,6 +75,29 @@ final class GraphKitTests: XCTestCase {
             graph.addNode()
         }
         XCTAssertEqual(graph.nodes.count, 9)
+    }
+    func testInsertDifferentNodes() {
+        struct TestNode: GraphNode {
+            var id: Int
+            
+            var edges: OrderedCollections.OrderedSet<GraphKit.Edge>
+            
+        }
+        struct TestNode2: GraphNode {
+            var id: Int
+            
+            var edges: OrderedCollections.OrderedSet<GraphKit.Edge>
+            
+        }
+        XCTAssertEqual(graph.nodes.count, 4)
+        for _ in 0...4 {
+            graph.addNode()
+        }
+        graph.addNode(node: TestNode(id: -1, edges: []))
+        graph.addNode(node: TestNode2(id: -1, edges: []))
+        XCTAssertEqual(graph.nodes.count, 11)
+        XCTAssertTrue(graph.nodes.contains(where: {$0 is TestNode}))
+        XCTAssertTrue(graph.nodes.contains(where: {$0 is TestNode2}))
     }
     func testRemoveNode() {
         XCTAssertEqual(graph.nodes.count, 4)

@@ -11,9 +11,22 @@ public protocol GraphNode: Equatable, Hashable {
     var edges: OrderedSet<Edge> { get set }
     func degree() -> Int
 }
+extension GraphNode {
+    func degree() -> Int {
+        return edges.count
+    }
+}
 public struct Node: GraphNode {
     public var id: Int
     public var edges: OrderedSet<Edge>
+    init(id: Int, edges: OrderedSet<Edge>) {
+        self.id = id
+        self.edges = edges
+    }
+    init() {
+        self.id = -1
+        self.edges = []
+    }
     public func degree() -> Int {
         return edges.count
     }
@@ -93,9 +106,10 @@ public struct Graph {
         self.nodes = mutableNodes
     }
     
-    mutating func addNode() {
+    mutating func addNode(node: any GraphNode = Node()) {
         var mutableNodes = self.nodes
-        let node = Node(id: self.nodes.count, edges: [])
+        var node = node
+        node.id = mutableNodes.count
         mutableNodes.append(node)
         self.nodes = mutableNodes
     }

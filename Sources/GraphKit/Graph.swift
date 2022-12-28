@@ -123,23 +123,22 @@ public struct Graph {
     }
     /// bfs search
     /// - Returns:
-//    func bfs(start: UUID) -> OrderedSet<Int> {
-//        var arrQueue: [UUID] = []
-//        var visited: OrderedSet<UUID> = []
-//        arrQueue.append(start)
-//        visited.append(start)
-//        while !arrQueue.isEmpty {
-//            let y = arrQueue.removeFirst()
-//            let node = nodes[y]
-//            visited.append(y)
-//            for edge in node.edges {
-//                if !visited.contains(edge.v) {
-//                    arrQueue.insert(edge.v, at: arrQueue.count)
-//                }
-//            }
-//        }
-//        return visited
-//    }
+    func bfs(start: UUID) -> OrderedSet<UUID> {
+        var arrQueue: [UUID] = []
+        var visited: OrderedSet<UUID> = []
+        arrQueue.append(start)
+        visited.append(start)
+        while !arrQueue.isEmpty {
+            let y = arrQueue.removeFirst()
+            visited.append(y)
+            for edge in self.edges where edge.u == y || edge.v == y {
+                if !visited.contains(edge.v) {
+                    arrQueue.insert(edge.v, at: arrQueue.count)
+                }
+            }
+        }
+        return visited
+    }
     
 //    func dfs(start: Int, visited: [Int] = []) -> OrderedSet<Int> {
 //        var vis = visited

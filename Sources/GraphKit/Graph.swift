@@ -60,7 +60,7 @@ public struct Graph {
         self.nodes = nodes
     }
     
-    private(set) var nodes: [any GraphNode]
+    public private(set) var nodes: [any GraphNode]
     public var edges: OrderedSet<Edge> {
         var e: OrderedSet<Edge> = []
         nodes.forEach({ node in

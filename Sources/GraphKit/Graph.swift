@@ -23,7 +23,7 @@ public struct Node: GraphNode {
         self.id = id
         self.edges = edges
     }
-    init() {
+    public init() {
         self.id = -1
         self.edges = []
     }
@@ -75,20 +75,20 @@ public struct Graph {
         }
         self.nodes = totalNodes
     }
-    mutating func addDirectedEdge(u: Int, v: Int) {
+    mutating public func addDirectedEdge(u: Int, v: Int) {
         var mutableNodes = self.nodes
         guard let uIndex = self.nodes.firstIndex(where: {$0.id == u}) else { return }
         let edge = Edge(u: u, v: v)
         mutableNodes[uIndex].edges.append(edge)
         self.nodes = mutableNodes
     }
-    mutating func removeDirectedEdge(u: Int, v: Int) {
+    mutating public func removeDirectedEdge(u: Int, v: Int) {
         var mutableNodes = self.nodes
         guard let uIndex = self.nodes.firstIndex(where: {$0.id == u}) else { return }
         mutableNodes[uIndex].edges.removeAll(where: {$0.v == v})
         self.nodes = mutableNodes
     }
-    mutating func removeUndirectedEdge(u: Int, v: Int) {
+    mutating public func removeUndirectedEdge(u: Int, v: Int) {
         var mutableNodes = self.nodes
         guard let uIndex = self.nodes.firstIndex(where: {$0.id == u}),
         let vIndex = self.nodes.firstIndex(where: {$0.id == v}) else { return }
@@ -96,7 +96,7 @@ public struct Graph {
         mutableNodes[vIndex].edges.removeAll(where: {$0.v == u})
         self.nodes = mutableNodes
     }
-    mutating func addUndirectedEdge(u: Int, v: Int) {
+    mutating public func addUndirectedEdge(u: Int, v: Int) {
         var mutableNodes = self.nodes
         guard let uIndex = self.nodes.firstIndex(where: {$0.id == u}),
               let vIndex = self.nodes.firstIndex(where: {$0.id == v}) else { return }
@@ -106,14 +106,14 @@ public struct Graph {
         self.nodes = mutableNodes
     }
     
-    mutating func addNode(node: any GraphNode = Node()) {
+    mutating public func addNode(node: any GraphNode = Node()) {
         var mutableNodes = self.nodes
         var node = node
         node.id = mutableNodes.count
         mutableNodes.append(node)
         self.nodes = mutableNodes
     }
-    mutating func removeNode(id: Int) {
+    mutating public func removeNode(id: Int) {
         var mutableNodes = self.nodes
         mutableNodes.removeAll(where: {$0.id == id})
         self.nodes = mutableNodes

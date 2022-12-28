@@ -7,7 +7,7 @@
 import Collections
 import Foundation
 public protocol GraphNode: Equatable, Hashable {
-    var id: Int { get set }
+    var id: UUID { get set }
     var edges: OrderedSet<Edge> { get set }
     func degree() -> Int
 }
@@ -17,14 +17,13 @@ extension GraphNode {
     }
 }
 public struct Node: GraphNode {
-    public var id: Int
+    public var id = UUID()
     public var edges: OrderedSet<Edge>
-    init(id: Int, edges: OrderedSet<Edge>) {
+    init(id: UUID, edges: OrderedSet<Edge>) {
         self.id = id
         self.edges = edges
     }
     public init() {
-        self.id = -1
         self.edges = []
     }
     public func degree() -> Int {
@@ -38,11 +37,11 @@ extension Node: CustomDebugStringConvertible {
 }
 public struct Edge: Equatable, Hashable {
     /// first node id
-    public var u: Int
+    public var u: UUID
     /// second node id
-    public var v: Int
+    public var v: UUID
     
-    public init(u: Int, v: Int) {
+    public init(u: UUID, v: UUID) {
         self.u = u
         self.v = v
     }
@@ -75,26 +74,26 @@ public struct Graph {
         var totalNodes: [Node] = []
         var dict: [Int: Node] = [:]
         for i in 0 ..< numberOfNodes {
-            let n = Node(id: i, edges: [])
+            let n = Node(id: UUID(), edges: [])
             totalNodes.append(n)
             dict[i] = n
         }
         self.nodes = totalNodes
     }
-    mutating public func addDirectedEdge(u: Int, v: Int) {
+    mutating public func addDirectedEdge(u: UUID, v: UUID) {
         var mutableNodes = self.nodes
         guard let uIndex = self.nodes.firstIndex(where: {$0.id == u}) else { return }
         let edge = Edge(u: u, v: v)
         mutableNodes[uIndex].edges.append(edge)
         self.nodes = mutableNodes
     }
-    mutating public func removeDirectedEdge(u: Int, v: Int) {
+    mutating public func removeDirectedEdge(u: UUID, v: UUID) {
         var mutableNodes = self.nodes
         guard let uIndex = self.nodes.firstIndex(where: {$0.id == u}) else { return }
         mutableNodes[uIndex].edges.removeAll(where: {$0.v == v})
         self.nodes = mutableNodes
     }
-    mutating public func removeUndirectedEdge(u: Int, v: Int) {
+    mutating public func removeUndirectedEdge(u: UUID, v: UUID) {
         var mutableNodes = self.nodes
         guard let uIndex = self.nodes.firstIndex(where: {$0.id == u}),
         let vIndex = self.nodes.firstIndex(where: {$0.id == v}) else { return }
@@ -102,7 +101,7 @@ public struct Graph {
         mutableNodes[vIndex].edges.removeAll(where: {$0.v == u})
         self.nodes = mutableNodes
     }
-    mutating public func addUndirectedEdge(u: Int, v: Int) {
+    mutating public func addUndirectedEdge(u: UUID, v: UUID) {
         var mutableNodes = self.nodes
         guard let uIndex = self.nodes.firstIndex(where: {$0.id == u}),
               let vIndex = self.nodes.firstIndex(where: {$0.id == v}) else { return }
@@ -114,35 +113,33 @@ public struct Graph {
     
     mutating public func addNode(node: any GraphNode = Node()) {
         var mutableNodes = self.nodes
-        var node = node
-        node.id = mutableNodes.count
         mutableNodes.append(node)
         self.nodes = mutableNodes
     }
-    mutating public func removeNode(id: Int) {
+    mutating public func removeNode(id: UUID) {
         var mutableNodes = self.nodes
         mutableNodes.removeAll(where: {$0.id == id})
         self.nodes = mutableNodes
     }
     /// bfs search
     /// - Returns:
-    func bfs(start: Int) -> OrderedSet<Int> {
-        var arrQueue: [Int] = []
-        var visited: OrderedSet<Int> = []
-        arrQueue.append(start)
-        visited.append(start)
-        while !arrQueue.isEmpty {
-            let y = arrQueue.removeFirst()
-            let node = nodes[y]
-            visited.append(y)
-            for edge in node.edges {
-                if !visited.contains(edge.v) {
-                    arrQueue.insert(edge.v, at: arrQueue.count)
-                }
-            }
-        }
-        return visited
-    }
+//    func bfs(start: UUID) -> OrderedSet<Int> {
+//        var arrQueue: [UUID] = []
+//        var visited: OrderedSet<UUID> = []
+//        arrQueue.append(start)
+//        visited.append(start)
+//        while !arrQueue.isEmpty {
+//            let y = arrQueue.removeFirst()
+//            let node = nodes[y]
+//            visited.append(y)
+//            for edge in node.edges {
+//                if !visited.contains(edge.v) {
+//                    arrQueue.insert(edge.v, at: arrQueue.count)
+//                }
+//            }
+//        }
+//        return visited
+//    }
     
 //    func dfs(start: Int, visited: [Int] = []) -> OrderedSet<Int> {
 //        var vis = visited

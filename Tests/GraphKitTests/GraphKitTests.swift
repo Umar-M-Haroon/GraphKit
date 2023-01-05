@@ -79,6 +79,14 @@ final class GraphKitTests: XCTestCase {
         for _ in 0...4 {
             graph.addNode()
         }
+        var nodeDictResults: [any GraphNode] = []
+        for n in graph.nodes {
+            if let node = graph[n.id] {
+                nodeDictResults.append(node)
+            }
+        }
+        XCTAssertEqual(nodeDictResults.count, 9)
+        
         XCTAssertEqual(graph.nodes.count, 9)
     }
     func testInsertDifferentNodes() {
@@ -109,8 +117,25 @@ final class GraphKitTests: XCTestCase {
         for _ in 0...3 {
             graph.addNode()
         }
+        
+        XCTAssertEqual(graph.nodes.count, 8)
+        XCTAssertEqual(graph.edges.count, 0)
+        
+        
+        graph.addUndirectedEdge(u: testUUIDs[0], v: testUUIDs[1])
+        XCTAssertEqual(graph.edges.count, 2)
+        
+        
         graph.removeNode(id: testUUIDs[0])
+        XCTAssertEqual(graph.edges.count, 0)
         XCTAssertEqual(graph.nodes.count, 7)
+        var nodeDictResults: [any GraphNode] = []
+        for n in graph.nodes {
+            if let node = graph[n.id] {
+                nodeDictResults.append(node)
+            }
+        }
+        XCTAssertEqual(nodeDictResults.count, 7)
     }
     func testBFS() {
         addSampleUndirectedEdges()

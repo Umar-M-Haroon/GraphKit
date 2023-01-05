@@ -58,9 +58,11 @@ extension Edge: CustomDebugStringConvertible {
 public struct Graph {
     internal init(nodes: [any GraphNode]) {
         self.nodes = nodes
+        self.nodeDict = Dictionary.init(grouping: nodes, by: \.id)
     }
     
     public private(set) var nodes: [any GraphNode]
+    private var nodeDict: [UUID: [any GraphNode]]
     public var edges: OrderedSet<Edge> {
         var e: OrderedSet<Edge> = []
         nodes.forEach({ node in
@@ -79,6 +81,7 @@ public struct Graph {
             dict[i] = n
         }
         self.nodes = totalNodes
+        self.nodeDict = Dictionary.init(grouping: nodes, by: \.id)
     }
     mutating public func addDirectedEdge(u: UUID, v: UUID) {
         var mutableNodes = self.nodes
@@ -115,11 +118,22 @@ public struct Graph {
         var mutableNodes = self.nodes
         mutableNodes.append(node)
         self.nodes = mutableNodes
+        self.nodeDict[node.id] = [node]
     }
     mutating public func removeNode(id: UUID) {
         var mutableNodes = self.nodes
         mutableNodes.removeAll(where: {$0.id == id})
+        self.nodeDict.removeValue(forKey: id)
         self.nodes = mutableNodes
+        for edge in edges where edge.u == id || edge.v == id {
+            removeUndirectedEdge(u: edge.u, v: edge.v)
+            removeUndirectedEdge(u: edge.v, v: edge.u)
+            removeDirectedEdge(u: edge.v, v: edge.u)
+            removeDirectedEdge(u: edge.u, v: edge.v)
+        }
+    }
+    subscript(id: UUID) -> (any GraphNode)? {
+        self.nodeDict[id]?.first
     }
     /// bfs search
     /// - Returns:

@@ -7,6 +7,13 @@
 
 import Foundation
 public struct EdgeView: View {
+    public init(edge: Edge, attributes: [Attribute], uDescription: String, vDescription: String) {
+        self.edge = edge
+        self.attributes = attributes
+        self.uDescription = uDescription
+        self.vDescription = vDescription
+    }
+    
     let edge: Edge
     let attributes: [Attribute]
     let uDescription: String

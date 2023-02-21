@@ -7,6 +7,11 @@
 
 import Foundation
 public struct NodeView: View {
+    public init(node: any GraphNode, attributes: [Attribute]) {
+        self.node = node
+        self.attributes = attributes
+    }
+    
     let node: any GraphNode
     let attributes: [Attribute]
     

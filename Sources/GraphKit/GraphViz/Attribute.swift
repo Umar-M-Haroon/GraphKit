@@ -6,7 +6,7 @@
 //
 
 import Foundation
-struct Attribute {
+public struct Attribute {
     let key: String
     let value: String
     

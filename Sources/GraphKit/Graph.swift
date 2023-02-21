@@ -120,12 +120,12 @@ public struct Graph {
         }
     }
     
-    func degree(node: any GraphNode) -> Int? {
+    public func degree(node: any GraphNode) -> Int? {
         let edgeSet: Set<Edge> = Set(edges.filter({$0.u == node.id}))
         return edgeSet.count
     }
     
-    subscript(id: UUID) -> (any GraphNode) {
+    public subscript(id: UUID) -> (any GraphNode) {
         self.nodeDict[id]!.first!
     }
     /// bfs search

@@ -6,13 +6,13 @@
 //
 
 import Foundation
-struct EdgeView: View {
+public struct EdgeView: View {
     let edge: Edge
     let attributes: [Attribute]
     let uDescription: String
     let vDescription: String
     
-    func build() -> [String] {
+    public func build() -> [String] {
         var output: [String] = []
         output.append("\"\(uDescription)\" -> \"\(vDescription)\" [\(attributes.map { $0.build() }.joined(separator: ", "))];")
         return output

@@ -6,14 +6,14 @@
 //
 
 import Foundation
-struct GraphView: View {
+public struct GraphView: View {
     var subviews: [View]
     
     init(@GraphVizBuilder builder: () -> [any View]) {
         subviews = builder()
     }
     
-    func build() -> [String] {
+    public func build() -> [String] {
         var output: [String] = []
         output.append("digraph {")
         for subview in subviews {

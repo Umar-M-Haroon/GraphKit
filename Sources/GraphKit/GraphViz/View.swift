@@ -6,7 +6,7 @@
 //
 
 import Foundation
-protocol View {
+public protocol View {
     func build() -> [String]
 }
 

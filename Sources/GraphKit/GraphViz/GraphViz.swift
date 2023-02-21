@@ -8,7 +8,7 @@
 import Foundation
 
 @resultBuilder
-struct GraphVizBuilder {
+public struct GraphVizBuilder {
     static func buildBlock(_ components: View...) -> [any View] {
         components
     }

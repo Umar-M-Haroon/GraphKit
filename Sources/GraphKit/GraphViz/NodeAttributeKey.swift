@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum NodeAttributeKey: String {
+public enum NodeAttributeKey: String {
     case shape
     case color
     case style

@@ -6,11 +6,11 @@
 //
 
 import Foundation
-struct NodeView: View {
+public struct NodeView: View {
     let node: any GraphNode
     let attributes: [Attribute]
     
-    func build() -> [String] {
+    public func build() -> [String] {
         var output: [String] = []
         output.append("\"\(node.description)\" [\(attributes.map { $0.build() }.joined(separator: ", "))];")
         return output

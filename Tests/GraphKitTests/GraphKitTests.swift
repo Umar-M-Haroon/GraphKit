@@ -8,8 +8,8 @@ final class GraphKitTests: XCTestCase {
     override func setUp() {
         var graph = Graph(numberOfNodes: 0)
         self.testUUIDs = [UUID(), UUID(), UUID(), UUID()]
-        for id in self.testUUIDs {
-            graph.addNode(node: Node(id: id, edges: []))
+        for (index, id) in self.testUUIDs.enumerated() {
+            graph.addNode(node: Node(id: id, description: "hi \(index)"))
         }
         self.graph = graph
     }
@@ -17,30 +17,30 @@ final class GraphKitTests: XCTestCase {
         self.graph = nil
     }
     func testEdgelessGraph() throws {
-        XCTAssertTrue(graph.nodes.count == 4)
+        XCTAssertEqual(graph.nodes.count, 4)
         XCTAssertTrue(graph.edges.isEmpty)
     }
     func testAddingDirectedEdges() {
         addSampleDirectedEdges()
-        XCTAssertTrue(graph.edges.count == 3)
-        XCTAssertTrue(graph.nodes[0].degree() == 3)
-        XCTAssertTrue(graph.nodes[1].degree() == 0)
-        XCTAssertTrue(graph.nodes[2].degree() == 0)
-        XCTAssertTrue(graph.nodes[3].degree() == 0)
+        XCTAssertEqual(graph.edges.count, 3)
+        XCTAssertEqual(graph.degree(node: graph.nodes[0]), 3)
+        XCTAssertEqual(graph.degree(node: graph.nodes[1]), 0)
+        XCTAssertEqual(graph.degree(node: graph.nodes[2]), 0)
+        XCTAssertEqual(graph.degree(node: graph.nodes[3]), 0)
     }
     func testRemovingDirectedEdges() {
         addSampleDirectedEdges()
-        XCTAssertTrue(graph.edges.count == 3)
+        XCTAssertEqual(graph.edges.count, 3)
 
         graph.removeDirectedEdge(u: testUUIDs[0], v: testUUIDs[1])
         graph.removeDirectedEdge(u: testUUIDs[0], v: testUUIDs[2])
         graph.removeDirectedEdge(u: testUUIDs[0], v: testUUIDs[3])
 
-        XCTAssertTrue(graph.edges.count == 0)
-        XCTAssertTrue(graph.nodes[0].degree() == 0)
-        XCTAssertTrue(graph.nodes[1].degree() == 0)
-        XCTAssertTrue(graph.nodes[2].degree() == 0)
-        XCTAssertTrue(graph.nodes[3].degree() == 0)
+        XCTAssertEqual(graph.edges.count, 0)
+        XCTAssertEqual(graph.degree(node: graph.nodes[0]), 0)
+        XCTAssertEqual(graph.degree(node: graph.nodes[0]), 0)
+        XCTAssertEqual(graph.degree(node: graph.nodes[0]), 0)
+        XCTAssertEqual(graph.degree(node: graph.nodes[0]), 0)
     }
     func addSampleDirectedEdges() {
         graph.addDirectedEdge(u: testUUIDs[0], v: testUUIDs[1])
@@ -49,25 +49,25 @@ final class GraphKitTests: XCTestCase {
     }
     func testAddingUndirectedEdges() {
         addSampleUndirectedEdges()
-        XCTAssertTrue(graph.edges.count == 6)
-        XCTAssertTrue(graph.nodes[0].degree() == 3)
-        XCTAssertTrue(graph.nodes[1].degree() == 1)
-        XCTAssertTrue(graph.nodes[2].degree() == 1)
-        XCTAssertTrue(graph.nodes[3].degree() == 1)
+        XCTAssertEqual(graph.edges.count, 6)
+        XCTAssertEqual(graph.degree(node: graph.nodes[0]), 3)
+        XCTAssertEqual(graph.degree(node: graph.nodes[1]), 1)
+        XCTAssertEqual(graph.degree(node: graph.nodes[2]), 1)
+        XCTAssertEqual(graph.degree(node: graph.nodes[3]), 1)
     }
     func testRemovingUndirectedEdges() {
         addSampleUndirectedEdges()
-        XCTAssertTrue(graph.edges.count == 6)
+        XCTAssertEqual(graph.edges.count, 6)
 
         graph.removeUndirectedEdge(u: testUUIDs[0], v: testUUIDs[1])
         graph.removeUndirectedEdge(u: testUUIDs[0], v: testUUIDs[2])
         graph.removeUndirectedEdge(u: testUUIDs[0], v: testUUIDs[3])
 
-        XCTAssertTrue(graph.edges.count == 0)
-        XCTAssertTrue(graph.nodes[0].degree() == 0)
-        XCTAssertTrue(graph.nodes[1].degree() == 0)
-        XCTAssertTrue(graph.nodes[2].degree() == 0)
-        XCTAssertTrue(graph.nodes[3].degree() == 0)
+        XCTAssertEqual(graph.edges.count, 0)
+        XCTAssertEqual(graph.degree(node: graph.nodes[0]), 0)
+        XCTAssertEqual(graph.degree(node: graph.nodes[1]), 0)
+        XCTAssertEqual(graph.degree(node: graph.nodes[2]), 0)
+        XCTAssertEqual(graph.degree(node: graph.nodes[3]), 0)
     }
     func addSampleUndirectedEdges() {
         graph.addUndirectedEdge(u: testUUIDs[0], v: testUUIDs[1])
@@ -81,33 +81,37 @@ final class GraphKitTests: XCTestCase {
         }
         var nodeDictResults: [any GraphNode] = []
         for n in graph.nodes {
-            if let node = graph[n.id] {
-                nodeDictResults.append(node)
-            }
+            nodeDictResults.append(graph[n.id])
         }
         XCTAssertEqual(nodeDictResults.count, 9)
         
         XCTAssertEqual(graph.nodes.count, 9)
     }
     func testInsertDifferentNodes() {
+        XCTAssertEqual(graph.nodes.count, 4)
         struct TestNode: GraphNode {
+            var description: String
+            
             var id: UUID
-
+            
             var edges: OrderedCollections.OrderedSet<GraphKit.Edge>
-
+            
         }
         struct TestNode2: GraphNode {
+            var description: String
+            
             var id: UUID
-
+            
             var edges: OrderedCollections.OrderedSet<GraphKit.Edge>
-
+            
         }
-        XCTAssertEqual(graph.nodes.count, 4)
         for _ in 0...4 {
             graph.addNode()
         }
-        graph.addNode(node: TestNode(id: UUID(), edges: []))
-        graph.addNode(node: TestNode2(id: UUID(), edges: []))
+        let id1 = UUID()
+        let id2 = UUID()
+        graph.addNode(node: TestNode(description: id1.uuidString, id: id1, edges: []))
+        graph.addNode(node: TestNode2(description: id2.uuidString, id: id2, edges: []))
         XCTAssertEqual(graph.nodes.count, 11)
         XCTAssertTrue(graph.nodes.contains(where: {$0 is TestNode}))
         XCTAssertTrue(graph.nodes.contains(where: {$0 is TestNode2}))
@@ -131,9 +135,7 @@ final class GraphKitTests: XCTestCase {
         XCTAssertEqual(graph.nodes.count, 7)
         var nodeDictResults: [any GraphNode] = []
         for n in graph.nodes {
-            if let node = graph[n.id] {
-                nodeDictResults.append(node)
-            }
+            nodeDictResults.append(graph[n.id])
         }
         XCTAssertEqual(nodeDictResults.count, 7)
     }

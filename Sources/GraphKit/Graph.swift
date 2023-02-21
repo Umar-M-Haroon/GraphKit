@@ -8,33 +8,22 @@ import Collections
 import Foundation
 public protocol GraphNode: Equatable, Hashable {
     var id: UUID { get set }
-    var edges: OrderedSet<Edge> { get set }
-    func degree() -> Int
+    var description: String { get set }
 }
-extension GraphNode {
-    func degree() -> Int {
-        return edges.count
-    }
-}
+
 public struct Node: GraphNode {
+    public var description: String
     public var id = UUID()
-    public var edges: OrderedSet<Edge>
-    init(id: UUID, edges: OrderedSet<Edge>) {
+//    public var edges: OrderedSet<Edge>
+    init(id: UUID, description: String? = nil) {
         self.id = id
-        self.edges = edges
+        self.description = description ?? id.uuidString
     }
     public init() {
-        self.edges = []
-    }
-    public func degree() -> Int {
-        return edges.count
+        self.description = self.id.uuidString
     }
 }
-extension Node: CustomDebugStringConvertible {
-    public var debugDescription: String {
-        return "Node: \(id), edges: \(edges.forEach({ print($0.debugDescription) }))"
-    }
-}
+
 public struct Edge: Equatable, Hashable {
     /// first node id
     public var u: UUID
@@ -63,20 +52,20 @@ public struct Graph {
     
     public private(set) var nodes: [any GraphNode]
     private var nodeDict: [UUID: [any GraphNode]]
-    public var edges: OrderedSet<Edge> {
-        var e: OrderedSet<Edge> = []
-        nodes.forEach({ node in
-            node.edges.forEach({ edge in
-                e.append(edge)
-            })
-        })
-        return e
-    }
+    public var edges: OrderedSet<Edge>  = []
+//        var e: OrderedSet<Edge> = []
+//        nodes.forEach({ node in
+//            node.edges.forEach({ edge in
+//                e.append(edge)
+//            })
+//        })
+//        return e
+//    }
     public init(numberOfNodes: Int) {
         var totalNodes: [Node] = []
         var dict: [Int: Node] = [:]
         for i in 0 ..< numberOfNodes {
-            let n = Node(id: UUID(), edges: [])
+            let n = Node(id: UUID())
             totalNodes.append(n)
             dict[i] = n
         }
@@ -84,34 +73,32 @@ public struct Graph {
         self.nodeDict = Dictionary.init(grouping: nodes, by: \.id)
     }
     mutating public func addDirectedEdge(u: UUID, v: UUID) {
-        var mutableNodes = self.nodes
-        guard let uIndex = self.nodes.firstIndex(where: {$0.id == u}) else { return }
         let edge = Edge(u: u, v: v)
-        mutableNodes[uIndex].edges.append(edge)
-        self.nodes = mutableNodes
+        self.edges.append(edge)
     }
     mutating public func removeDirectedEdge(u: UUID, v: UUID) {
-        var mutableNodes = self.nodes
-        guard let uIndex = self.nodes.firstIndex(where: {$0.id == u}) else { return }
-        mutableNodes[uIndex].edges.removeAll(where: {$0.v == v})
-        self.nodes = mutableNodes
+        edges.removeAll(where: {$0.v == v})
     }
     mutating public func removeUndirectedEdge(u: UUID, v: UUID) {
-        var mutableNodes = self.nodes
-        guard let uIndex = self.nodes.firstIndex(where: {$0.id == u}),
-        let vIndex = self.nodes.firstIndex(where: {$0.id == v}) else { return }
-        mutableNodes[uIndex].edges.removeAll(where: {$0.v == v})
-        mutableNodes[vIndex].edges.removeAll(where: {$0.v == u})
-        self.nodes = mutableNodes
+        edges.removeAll(where: {$0.v == v})
+        edges.removeAll(where: {$0.v == u})
     }
     mutating public func addUndirectedEdge(u: UUID, v: UUID) {
-        var mutableNodes = self.nodes
-        guard let uIndex = self.nodes.firstIndex(where: {$0.id == u}),
-              let vIndex = self.nodes.firstIndex(where: {$0.id == v}) else { return }
         let edge = Edge(u: u, v: v)
-        mutableNodes[uIndex].edges.append(edge)
-        mutableNodes[vIndex].edges.append(edge.reverse())
-        self.nodes = mutableNodes
+        edges.append(edge)
+        edges.append(edge.reverse())
+    }
+    
+    mutating public func removeUndirectedEdge(u: any GraphNode, v: any GraphNode) {
+        let removeEdge = Edge(u: u.id, v: v.id)
+        edges.removeAll(where: {$0 == removeEdge})
+        edges.removeAll(where: {$0.reverse() == removeEdge.reverse()})
+    }
+    
+    mutating public func addUndirectedEdge(u: any GraphNode, v: any GraphNode) {
+        let edge = Edge(u: u.id, v: v.id)
+        edges.append(edge)
+        edges.append(edge.reverse())
     }
     
     mutating public func addNode(node: any GraphNode = Node()) {
@@ -132,8 +119,14 @@ public struct Graph {
             removeDirectedEdge(u: edge.u, v: edge.v)
         }
     }
-    subscript(id: UUID) -> (any GraphNode)? {
-        self.nodeDict[id]?.first
+    
+    func degree(node: any GraphNode) -> Int? {
+        let edgeSet: Set<Edge> = Set(edges.filter({$0.u == node.id}))
+        return edgeSet.count
+    }
+    
+    subscript(id: UUID) -> (any GraphNode) {
+        self.nodeDict[id]!.first!
     }
     /// bfs search
     /// - Returns:

@@ -9,7 +9,7 @@ import Foundation
 public struct GraphView: View {
     var subviews: [View]
     
-    init(@GraphVizBuilder builder: () -> [any View]) {
+    public init(@GraphVizBuilder builder: () -> [any View]) {
         subviews = builder()
     }
     

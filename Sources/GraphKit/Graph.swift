@@ -112,12 +112,7 @@ public struct Graph {
         mutableNodes.removeAll(where: {$0.id == id})
         self.nodeDict.removeValue(forKey: id)
         self.nodes = mutableNodes
-        for edge in edges where edge.u == id || edge.v == id {
-            removeUndirectedEdge(u: edge.u, v: edge.v)
-            removeUndirectedEdge(u: edge.v, v: edge.u)
-            removeDirectedEdge(u: edge.v, v: edge.u)
-            removeDirectedEdge(u: edge.u, v: edge.v)
-        }
+        edges.removeAll(where: {$0.u == id || $0.v == id})
     }
     
     public func degree(node: any GraphNode) -> Int? {

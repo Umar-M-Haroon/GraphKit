@@ -139,6 +139,28 @@ final class GraphKitTests: XCTestCase {
         }
         XCTAssertEqual(nodeDictResults.count, 7)
     }
+    func testRemoveEdge() {
+        XCTAssertEqual(graph.nodes.count, 4)
+        XCTAssertEqual(graph.edges.count, 0)
+        
+        
+        graph.addDirectedEdge(u: testUUIDs[0], v: testUUIDs[1])
+        graph.addDirectedEdge(u: testUUIDs[0], v: testUUIDs[2])
+        graph.addDirectedEdge(u: testUUIDs[1], v: testUUIDs[2])
+        graph.addDirectedEdge(u: testUUIDs[2], v: testUUIDs[1])
+        XCTAssertEqual(graph.edges.count, 4)
+        
+        
+        
+        graph.removeNode(id: testUUIDs[1])
+        XCTAssertEqual(graph.nodes.count, 3)
+        XCTAssertEqual(graph.edges.count, 1)
+        var nodeDictResults: [any GraphNode] = []
+        for n in graph.nodes {
+            nodeDictResults.append(graph[n.id])
+        }
+        XCTAssertEqual(nodeDictResults.count, 3)
+    }
     func testBFS() {
         addSampleUndirectedEdges()
         let results = graph.bfs(start: testUUIDs[0])

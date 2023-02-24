@@ -7,7 +7,7 @@
 
 import Foundation
 public struct Attribute {
-    let key: String
+    let key: any Attributable
     let value: String
     
     func build() -> String {

@@ -7,8 +7,8 @@
 
 import Foundation
 
-
-enum EdgeAttributeKey: String {
+protocol Attributable {}
+enum EdgeAttributeKey: String, Attributable {
     case color
     case style
     case dir

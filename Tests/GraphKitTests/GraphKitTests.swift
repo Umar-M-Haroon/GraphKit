@@ -166,4 +166,30 @@ final class GraphKitTests: XCTestCase {
         let results = graph.bfs(start: testUUIDs[0])
         XCTAssertEqual(results, OrderedSet(testUUIDs))
     }
+    func testGraphViz() {
+        struct TestNode: GraphNode {
+            var description: String
+            
+            var id: UUID
+            
+            var edges: OrderedCollections.OrderedSet<GraphKit.Edge>
+            
+        }
+        struct TestNode2: GraphNode {
+            var description: String
+            
+            var id: UUID
+            
+            var edges: OrderedCollections.OrderedSet<GraphKit.Edge>
+            
+        }
+        addSampleDirectedEdges()
+        let views = graph.nodes.flatMap({NodeView(node: $0, attributes: [])})
+        let edges = graph.edges.flatMap({EdgeView(edge: $0, attributes: [.init(key: EdgeAttributeKey.color, value: "red")], uDescription: graph[$0.u].description, vDescription: graph[$0.v].description)})
+        let allViews: [any View] = views + edges
+        let graphView = GraphView {
+            allViews
+        }
+        print(graphView.build().joined(separator: "\n"))
+    }
 }

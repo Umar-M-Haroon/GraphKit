@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol Attributable {}
+public protocol Attributable {}
 public enum EdgeAttributeKey: String, Attributable {
     case color
     case style

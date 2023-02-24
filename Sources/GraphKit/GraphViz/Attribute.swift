@@ -7,6 +7,11 @@
 
 import Foundation
 public struct Attribute {
+    public init(key: any Attributable, value: String) {
+        self.key = key
+        self.value = value
+    }
+    
     let key: any Attributable
     let value: String
     

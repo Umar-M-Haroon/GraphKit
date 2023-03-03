@@ -7,7 +7,7 @@
 
 import Foundation
 
-public enum DOTLayout: String {
+enum DOTLayout: String {
     case circo = "circo"
     case dot
     case fdp

@@ -185,8 +185,8 @@ final class GraphKitTests: XCTestCase {
         }
         addSampleDirectedEdges()
         let views = graph.nodes.flatMap({NodeView(node: $0, attributes: [])})
-        let edges = graph.edges.flatMap({EdgeView(edge: $0, attributes: [.init(key: EdgeAttributeKey.color, value: "red")], uDescription: graph[$0.u].description, vDescription: graph[$0.v].description)})
-        let allViews: [any View] = views + edges
+        let edges = graph.edges.flatMap({EdgeView(edge: $0, attributes: [.init(key: EdgeAttributeKey.color, value: "red"), .init(key: EdgeAttributeKey.label, value: "calls")], uDescription: graph[$0.u].description, vDescription: graph[$0.v].description)})
+        let allViews: [any DOTView] = views + edges
         let graphView = GraphView {
             allViews
         }

@@ -6,7 +6,7 @@
 //
 
 import Foundation
-public struct EdgeView: View {
+public struct EdgeView: DOTView {
     public init(edge: Edge, attributes: [Attribute], uDescription: String, vDescription: String) {
         self.edge = edge
         self.attributes = attributes

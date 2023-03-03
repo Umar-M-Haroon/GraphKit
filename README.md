@@ -1,3 +1,3 @@
-# Infection
+# GraphKit
 
-A description of this package.
+A graph package to build graphs and render it to Graphviz

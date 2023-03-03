@@ -6,7 +6,7 @@
 //
 
 import Foundation
-public struct NodeView: View {
+public struct NodeView: DOTView {
     public init(node: any GraphNode, attributes: [Attribute]) {
         self.node = node
         self.attributes = attributes

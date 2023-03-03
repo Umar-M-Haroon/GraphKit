@@ -6,10 +6,10 @@
 //
 
 import Foundation
-public struct GraphView: View {
-    var subviews: [View]
+public struct GraphView: DOTView {
+    var subviews: [DOTView]
     
-    public init(@GraphVizBuilder builder: () -> [any View]) {
+    public init(@GraphVizBuilder builder: () -> [any DOTView]) {
         subviews = builder()
     }
     

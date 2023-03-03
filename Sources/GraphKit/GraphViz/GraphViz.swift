@@ -9,13 +9,13 @@ import Foundation
 
 @resultBuilder
 public struct GraphVizBuilder {
-    public static func buildBlock(_ components: View...) -> [any View] {
+    public static func buildBlock(_ components: DOTView...) -> [any DOTView] {
         components
     }
-    public static func buildBlock(_ components: [View]) -> [any View] {
+    public static func buildBlock(_ components: [DOTView]) -> [any DOTView] {
         components
     }
-    public static func buildArray(_ components: [[View]]) -> [any View] {
+    public static func buildArray(_ components: [[DOTView]]) -> [any DOTView] {
         components.flatMap({$0})
     }
 }

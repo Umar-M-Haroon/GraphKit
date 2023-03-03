@@ -8,7 +8,7 @@
 import Foundation
 import Clibgraphviz
 
-struct DOTRenderer {
+public struct DOTRenderer {
     public struct Options: OptionSet {
         public let rawValue: Int
         
@@ -32,11 +32,11 @@ struct DOTRenderer {
     private static let queue = DispatchQueue(label: "com.UmarHaroon.GraphKit.Renderer")
     var layout: DOTLayout
     
-    init(layout: DOTLayout) {
+    public init(layout: DOTLayout) {
         self.layout = layout
     }
     
-    func render(view: DOTView, format: Format = .pdf, options: DOTRenderer.Options? = nil) -> Data {
+    public func render(view: DOTView, format: Format = .pdf, options: DOTRenderer.Options? = nil) -> Data {
         let ctx = gvContext()
         defer { gvFreeContext(ctx) }
         

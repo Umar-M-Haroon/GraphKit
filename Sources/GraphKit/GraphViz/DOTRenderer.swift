@@ -8,7 +8,7 @@
 import Foundation
 import Clibgraphviz
 
-struct DOTRenderer {
+public struct DOTRenderer {
     public struct Options: OptionSet {
         public let rawValue: Int
         

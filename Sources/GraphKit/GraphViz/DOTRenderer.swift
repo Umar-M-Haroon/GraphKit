@@ -68,4 +68,35 @@ public struct DOTRenderer {
             completion(result)
         }
     }
+    
+    public func render(dotString: String, format: Format = .pdf, options: DOTRenderer.Options? = nil, queue: DispatchQueue = .main, completion: @escaping((Result<Data, Swift.Error>) -> ())) {
+        DOTRenderer.queue.async {
+            let result = Result { () throws -> Data in
+                
+                let ctx = gvContext()
+                defer { gvFreeContext(ctx) }
+                
+                let graph = try dotString.withCString { cString in
+                    try attempt { agmemread(cString) }
+                }
+                
+                try layout.rawValue.withCString { cString in
+                    try attempt { gvLayout(ctx, graph, cString) }
+                }
+                
+                defer { gvFreeLayout(ctx, graph)}
+                
+                var data: UnsafeMutablePointer<Int8>?
+                var length: UInt32 = 0
+                try format.rawValue.withCString { cString in
+                    try attempt { gvRenderData(ctx, graph, cString, &data, &length) }
+                }
+                defer { gvFreeRenderData(data) }
+                guard let bytes = data else { return Data() }
+                
+                return Data(bytes: UnsafeRawPointer(bytes), count: Int(length))
+            }
+            completion(result)
+        }
+    }
 }

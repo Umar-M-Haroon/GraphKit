@@ -7,6 +7,7 @@
 
 import Foundation
 import Clibgraphviz
+import Combine
 
 public struct DOTRenderer {
     public struct Options: OptionSet {
@@ -36,29 +37,35 @@ public struct DOTRenderer {
         self.layout = layout
     }
     
-    public func render(view: DOTView, format: Format = .pdf, options: DOTRenderer.Options? = nil) -> Data {
-        let ctx = gvContext()
-        defer { gvFreeContext(ctx) }
-        
-        let dotString  = view.build().joined(separator: "\n")
-        let graph = dotString.withCString { cString in
-            agmemread(cString)
+    public func render(view: DOTView, format: Format = .pdf, options: DOTRenderer.Options? = nil, queue: DispatchQueue = .main, completion: @escaping((Result<Data, any Error>) -> ())) {
+            DOTRenderer.queue.async {
+                let result = Result {
+                
+                let ctx = gvContext()
+                defer { gvFreeContext(ctx) }
+                
+                let dotString  = view.build().joined(separator: "\n")
+                let graph = dotString.withCString { cString in
+                    agmemread(cString)
+                }
+                
+                //        _ = layout.rawValue.withCString { cString in
+                //            gvLayout(ctx, graph, cString)
+                //        }
+                //
+                //        defer { gvFreeLayout(ctx, graph)}
+                
+                var data: UnsafeMutablePointer<Int8>?
+                var length: UInt32 = 0
+                _ = format.rawValue.withCString { cString in
+                    gvRenderData(ctx, graph, cString, &data, &length)
+                }
+                defer { gvFreeRenderData(data) }
+                guard let bytes = data else { return Data() }
+                
+                return Data(bytes: UnsafeRawPointer(bytes), count: Int(length))
+            }
+            completion(result)
         }
-        
-        _ = layout.rawValue.withCString { cString in
-            gvLayout(ctx, graph, cString)
-        }
-        
-        defer { gvFreeLayout(ctx, graph)}
-        
-        var data: UnsafeMutablePointer<Int8>?
-        var length: UInt32 = 0
-        _ = format.rawValue.withCString { cString in
-            gvRenderData(ctx, graph, cString, &data, &length)
-        }
-        defer { gvFreeRenderData(data) }
-        guard let bytes = data else { return Data() }
-        
-        return Data(bytes: UnsafeRawPointer(bytes), count: Int(length))
     }
 }

@@ -192,4 +192,8 @@ final class GraphKitTests: XCTestCase {
         }
         print(graphView.build().joined(separator: "\n"))
     }
+    
+    func testString() {
+        graph.addNode(node: Node(id: .init(), description: ".filter(with: [NSLocalizedString("Privacy Policy", comment: "Privacy Policy"))"))
+    }
 }

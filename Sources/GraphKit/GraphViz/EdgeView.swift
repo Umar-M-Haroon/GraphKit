@@ -21,7 +21,7 @@ public struct EdgeView: DOTView {
     
     public func build() -> [String] {
         var output: [String] = []
-        output.append("\"\(uDescription)\" -> \"\(vDescription)\" [\(attributes.map { $0.build() }.joined(separator: ", "))];")
+        output.append("\"\(uDescription.replacingOccurrences(of: "\"", with: "\\\""))\" -> \"\(vDescription.replacingOccurrences(of: "\"", with: "\\\""))\" [\(attributes.map { $0.build() }.joined(separator: ", "))];")
         return output
     }
 }

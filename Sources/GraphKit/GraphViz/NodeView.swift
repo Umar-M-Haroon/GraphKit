@@ -17,7 +17,7 @@ public struct NodeView: DOTView {
     
     public func build() -> [String] {
         var output: [String] = []
-        output.append("\"\(node.description)\" [\(attributes.map { $0.build() }.joined(separator: ", "))];")
+        output.append("\"\(node.description.replacingOccurrences(of: "\"", with: "\\\""))\" [\(attributes.map { $0.build() }.joined(separator: ", "))];")
         return output
     }
 }

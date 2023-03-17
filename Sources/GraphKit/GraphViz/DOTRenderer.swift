@@ -9,7 +9,7 @@ import Foundation
 import Clibgraphviz
 import Combine
 
-public struct DOTRenderer {
+public actor DOTRenderer {
     public struct Options: OptionSet {
         public let rawValue: Int
         
@@ -30,73 +30,65 @@ public struct DOTRenderer {
     }
     
     
-    private static let queue = DispatchQueue(label: "com.UmarHaroon.GraphKit.Renderer")
-    var layout: DOTLayout
+    let layout: DOTLayout
     
     public init(layout: DOTLayout) {
         self.layout = layout
     }
     
-    public func render(view: DOTView, format: Format = .pdf, options: DOTRenderer.Options? = nil, queue: DispatchQueue = .main, completion: @escaping((Result<Data, Swift.Error>) -> ())) {
-        DOTRenderer.queue.async {
-            let result = Result { () throws -> Data in 
-                
-                let ctx = gvContext()
-                defer { gvFreeContext(ctx) }
-                
-                let dotString  = view.build().joined(separator: "\n")
-                let graph = try dotString.withCString { cString in
-                    try attempt { agmemread(cString) }
-                }
-                
-                try layout.rawValue.withCString { cString in
-                    try attempt { gvLayout(ctx, graph, cString) }
-                }
-                
-                defer { gvFreeLayout(ctx, graph)}
-                
-                var data: UnsafeMutablePointer<Int8>?
-                var length: UInt32 = 0
-                try format.rawValue.withCString { cString in
-                    try attempt { gvRenderData(ctx, graph, cString, &data, &length) }
-                }
-                defer { gvFreeRenderData(data) }
-                guard let bytes = data else { return Data() }
-                
-                return Data(bytes: UnsafeRawPointer(bytes), count: Int(length))
-            }
-            completion(result)
+    public func render(view: DOTView, format: Format = .pdf, options: DOTRenderer.Options? = nil) async throws -> Data {
+        let ctx = gvContext()
+        defer { gvFreeContext(ctx) }
+        
+        let dotString  = view.build().joined(separator: "\n")
+        let graph = try dotString.withCString { cString in
+            try attempt { agmemread(cString) }
         }
+        
+        try layout.rawValue.withCString { cString in
+            try attempt { gvLayout(ctx, graph, cString) }
+        }
+        
+        defer { gvFreeLayout(ctx, graph)}
+        
+        var data: UnsafeMutablePointer<Int8>?
+        var length: UInt32 = 0
+        try format.rawValue.withCString { cString in
+            try attempt { gvRenderData(ctx, graph, cString, &data, &length) }
+        }
+        defer { gvFreeRenderData(data) }
+        guard let bytes = data else { return Data() }
+        
+        return Data(bytes: UnsafeRawPointer(bytes), count: Int(length))
     }
     
-    public func render(dotString: String, format: Format = .pdf, options: DOTRenderer.Options? = nil, queue: DispatchQueue = .main, completion: @escaping((Result<Data, Swift.Error>) -> ())) {
-        DOTRenderer.queue.async {
-            let result = Result { () throws -> Data in
-                
-                let ctx = gvContext()
-                defer { gvFreeContext(ctx) }
-                
-                let graph = try dotString.withCString { cString in
-                    try attempt { agmemread(cString) }
-                }
-                
-                try layout.rawValue.withCString { cString in
-                    try attempt { gvLayout(ctx, graph, cString) }
-                }
-                
-                defer { gvFreeLayout(ctx, graph)}
-                
-                var data: UnsafeMutablePointer<Int8>?
-                var length: UInt32 = 0
-                try format.rawValue.withCString { cString in
-                    try attempt { gvRenderData(ctx, graph, cString, &data, &length) }
-                }
-                defer { gvFreeRenderData(data) }
-                guard let bytes = data else { return Data() }
-                
-                return Data(bytes: UnsafeRawPointer(bytes), count: Int(length))
-            }
-            completion(result)
-        }
-    }
+//    public func render(dotString: String, format: Format = .pdf, options: DOTRenderer.Options? = nil, queue: DispatchQueue = .main, completion: @escaping((Result<Data, Swift.Error>) -> ())) {
+//            let result = Result { () throws -> Data in
+//
+//                let ctx = gvContext()
+//                defer { gvFreeContext(ctx) }
+//
+//                let graph = try dotString.withCString { cString in
+//                    try attempt { agmemread(cString) }
+//                }
+//
+//                try self.layout.rawValue.withCString { cString in
+//                    try attempt { gvLayout(ctx, graph, cString) }
+//                }
+//
+//                defer { gvFreeLayout(ctx, graph)}
+//
+//                var data: UnsafeMutablePointer<Int8>?
+//                var length: UInt32 = 0
+//                try format.rawValue.withCString { cString in
+//                    try attempt { gvRenderData(ctx, graph, cString, &data, &length) }
+//                }
+//                defer { gvFreeRenderData(data) }
+//                guard let bytes = data else { return Data() }
+//
+//                return Data(bytes: UnsafeRawPointer(bytes), count: Int(length))
+//            }
+//            completion(result)
+//
+//    }
 }
